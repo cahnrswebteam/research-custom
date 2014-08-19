@@ -32,6 +32,9 @@ class cahnrs_or {
 		\add_action( 'init', array( $this , 'create_rfp_post_type' ) );
 		\add_action( 'add_meta_boxes', array( $this , 'add_rfp_metabox' ) );
 		\add_action( 'save_post', array( $this , 'save_rfp_metabox' ) );
+		if ( !is_admin() ){
+			\add_action( 'template_redirect', array( $this , 'rfp_redirect' ) );
+		}
 		//$widgets = new widget_control();
 		//$scripts = new script_control();
 		//$taxonomy = new taxonomy_control();
@@ -72,6 +75,17 @@ class cahnrs_or {
 			);
 		}
 	}
+	
+	public function rfp_redirect(){
+		 global $post;
+		 $redirect_types = array( 'rfp');
+		 if( in_array( $post->post_type , $redirect_types ) && ( is_singular('rfp') ) && is_main_query() ){
+			 $meta = \get_post_meta( $post->ID , '_redirect_to' , true );
+			 if( $meta ){
+				 \wp_redirect( $meta , 302 );
+			 }
+		 }
+	 }
 	
 	public function render_rfp_metabox( $post ){
 		$date = \get_post_meta( $post->ID , '_post_date', true );
