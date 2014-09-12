@@ -34,6 +34,7 @@ class cahnrs_or {
 		\add_action( 'save_post', array( $this , 'save_rfp_metabox' ) );
 		if ( !is_admin() ){
 			\add_action( 'template_redirect', array( $this , 'rfp_redirect' ) );
+			\add_filter( 'the_title', array( $this , 'add_rfp_data' ) );
 		}
 		//$widgets = new widget_control();
 		//$scripts = new script_control();
@@ -79,7 +80,7 @@ class cahnrs_or {
 	public function rfp_redirect(){
 		 global $post;
 		 $redirect_types = array( 'rfp');
-		 if( in_array( $post->post_type , $redirect_types ) && ( is_singular('rfp') ) && is_main_query() ){
+		 if( in_array( $post->post_type , $redirect_types ) && ( is_singular('rfp') ) ){
 			 $meta = \get_post_meta( $post->ID , '_redirect_to' , true );
 			 if( $meta ){
 				 \wp_redirect( $meta , 302 );
@@ -152,6 +153,17 @@ class cahnrs_or {
 				\update_post_meta( $post_id, $input, $the_data );
 			}
 		}
+	}
+	
+	public function add_rfp_data( $title ){
+		global $post;
+		if( 'rfp' == $post->post_type ){
+			$date = get_post_meta( $post->ID, '_post_date' , true );
+			if( $date ){
+				return $title.'<br /><span style="font-size: 14px; color: #555; font-weight: bold;">Due Date: '.date( 'D, d M Y' , $date ).'</span>';
+			}
+		};
+		return $title;
 	}
 
 }
