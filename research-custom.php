@@ -29,8 +29,8 @@ class cahnrs_or {
 	}
 
 	public function init_plugin() {
-		\add_action( 'init', array( $this , 'create_rfp_post_type' ) );
-		\add_action( 'add_meta_boxes', array( $this , 'add_rfp_metabox' ) );
+		\add_action( 'init', array( $this , 'create_post_type' ) );
+		\add_action( 'add_meta_boxes', array( $this , 'add_metabox' ) );
 		\add_action( 'save_post', array( $this , 'save_rfp_metabox' ) );
 		if ( !is_admin() ){
 			\add_action( 'template_redirect', array( $this , 'rfp_redirect' ) );
@@ -51,13 +51,26 @@ class cahnrs_or {
 		//\add_action( 'init', array( $post_types , 'register_post_types' ) );
 	}
 	
-	public function create_rfp_post_type() {
+	public function create_post_type() {
 		register_post_type( 'rfp',
 			array(
 			  'labels' => array(
 				'name' => __( 'RFPs' ),
 				'singular_name' => __( 'RFP' )
 			  ),
+			'taxonomies' => array('category','post_tag'),
+			'public' => true,
+			'has_archive' => true,
+			'supports' => array( 'title', 'editor' ),
+			)
+		);
+		register_post_type( 'research_review',
+			array(
+			  'labels' => array(
+				'name' => __( 'Research Review' ),
+				'singular_name' => __( 'Research Review' )
+			  ),
+			'taxonomies' => array('category','post_tag'),
 			'public' => true,
 			'has_archive' => true,
 			'supports' => array( 'title', 'editor' ),
@@ -65,13 +78,13 @@ class cahnrs_or {
 		);
 	}
 	
-	public function add_rfp_metabox() {
-		$screens = array( 'rfp' );
+	public function add_metabox() {
+		$screens = array( 'rfp', 'research_review' );
 		foreach ( $screens as $screen ) {
 			add_meta_box(
-				'rfp_settings',
-				__( 'RFP SETTINGS' ),
-				array( $this , 'render_rfp_metabox' ),
+				'item_settings',
+				__( 'Item Settings' ),
+				array( $this , 'render_date_metabox' ),
 				$screen
 			);
 		}
@@ -88,7 +101,7 @@ class cahnrs_or {
 		 }
 	 }
 	
-	public function render_rfp_metabox( $post ){
+	public function render_date_metabox( $post ){
 		$date = \get_post_meta( $post->ID , '_post_date', true );
 		$date = ( $date )? date( 'm', $date ).'/'.date( 'd', $date ).'/'.date( 'y', $date ) : $date;
 		$redirect = \get_post_meta( $post->ID , '_redirect_to', true );
