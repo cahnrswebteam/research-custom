@@ -31,11 +31,12 @@ class cahnrs_or {
 	public function init_plugin() {
 		\add_action( 'init', array( $this , 'create_post_type' ) );
 		\add_action( 'add_meta_boxes', array( $this , 'add_metabox' ) );
-		\add_action( 'save_post', array( $this , 'save_rfp_metabox' ) );
+		\add_action( 'save_post', array( $this , 'save_metabox' ) );
 		if ( !is_admin() ){
 			\add_action( 'template_redirect', array( $this , 'rfp_redirect' ) );
 			\add_filter( 'the_title', array( $this , 'add_rfp_data' ) );
 		}
+		\add_action( 'edit_form_after_title', array( $this , 'add_subhead' ) );
 		//$widgets = new widget_control();
 		//$scripts = new script_control();
 		//$taxonomy = new taxonomy_control();
@@ -49,6 +50,16 @@ class cahnrs_or {
 		//$post_types = new post_type_control();
 		
 		//\add_action( 'init', array( $post_types , 'register_post_types' ) );
+	}
+	
+	public function add_subhead(){
+		global $post;
+		$sub = get_post_meta( $post->ID , '_post_subtitle' , true );
+		echo '<div style="margin-bottom: 1rem">';
+		echo '<h3>Subtitle</h3>';
+		echo '<input type="text" name="_post_subtitle" value="'.$sub.'" style="width: 100%; padding: 3px 8px;
+font-size: 1.4em;" />';
+		echo '</div>';
 	}
 	
 	public function create_post_type() {
@@ -115,7 +126,7 @@ class cahnrs_or {
 		echo '</div>';
 	}
 	
-	public function save_rfp_metabox( $post_id ) {
+	public function save_metabox( $post_id ) {
 
 		/*
 		 * We need to verify this came from our screen and with proper authorization,
@@ -154,7 +165,7 @@ class cahnrs_or {
 		/* OK, it's safe for us to save the data now. */
 		
 		// Make sure that it is set.
-		$inputs = array( '_post_date' , '_redirect_to' );
+		$inputs = array( '_post_date' , '_redirect_to', '_post_subtitle' );
 		foreach ( $inputs as $input ){
 			if ( isset( $_POST[ $input ] ) ) {
 				$the_data = sanitize_text_field( $_POST[ $input ] );
